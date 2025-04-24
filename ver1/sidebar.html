@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      html, body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .half-section {
+        flex: 1;
+        padding: 10px;
+        box-sizing: border-box;
+        overflow: auto;
+        border-bottom: 1px solid #ccc;
+      }
+
+      h3 {
+        margin-top: 0;
+      }
+
+      button {
+        font-size: 14px;
+        margin: 5px;
+        padding: 10px;
+        cursor: pointer;
+      }
+
+      #buttons {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      /* #buttons button {
+        flex: 1 1 auto;
+      } */
+    </style>
+  </head>
+  <body>
+    <!-- 上半分: 分析方針 -->
+    <div class="half-section" id="policy-section">
+      <h3>分析方針:</h3>
+      <h3 id="policyText"></h3>
+      <button id="inputPolicyBtn">分析方針を入力・変更する</button>
+    </div>
+
+    <!-- 下半分: 語句ボタン -->
+    <div class="half-section">
+      <button id="CodeGenerationBtn">コード生成</button>
+      <div id="buttons"></div>
+    </div>
+
+    <script>
+      // 分析方針の更新処理
+      document.getElementById("inputPolicyBtn").addEventListener("click", function () {
+        google.script.run.withSuccessHandler(function (returnedText) {
+          document.getElementById("policyText").textContent = returnedText;
+        }).InputAnalysisPolicy();
+      });
+
+      // 語句ボタン群の生成
+      document.getElementById("CodeGenerationBtn").addEventListener("click", function () {
+        const container = document.getElementById('buttons');
+        container.innerHTML = ""; // 一度クリア（再生成のため）
+
+        google.script.run.withSuccessHandler(function (words) {
+          words.forEach(function (word) {
+            const btn = document.createElement('button');
+            btn.textContent = word;
+            btn.onclick = function () {
+              google.script.run.setValueInCell(word);
+            };
+            container.appendChild(btn);
+          });
+        }).getWordList();
+      });
+    </script>
+  </body>
+</html>
